@@ -5,14 +5,15 @@ email: k.leidorf@gmail.com
 discord: kvetos_95684
 """
 
-# Globální seznam pro ukládání úkolů (v budoucnu by mohl být v třídě/objektu)
+import sys
+
+# Globální seznam pro ukládání úkolů
 ukoly = []
 
 
 def hlavni_menu() -> str:
     """Zobrazí hlavní menu a vrátí volbu uživatele."""
     while True:
-        # Sloučení vícenásobných printů do jednoho bloku pro lepší čitelnost
         print(
             "\n" + "-" * 27,
             "Správce úkolů - Hlavní menu",
@@ -38,12 +39,10 @@ def pridat_ukol() -> None:
         nazev = input("\nZadejte název úkolu: ").strip()
         popis = input("Zadejte popis úkolu: ").strip()
         
-        # Validace vstupu: kontrola, zda uživatel nezadal jen prázdné znaky
         if not nazev or not popis:
             print("Chyba: Název i popis úkolu nesmí být prázdný! Zadejte znovu.")
             continue
         
-        # Uložení úkolu do slovníku
         ukol = {"nazev": nazev, "popis": popis}
         ukoly.append(ukol)
         
@@ -58,33 +57,42 @@ def zobrazit_ukoly() -> None:
         return
 
     print("\nSeznam úkolů:")
-    # Start=1 zajišťuje uživatelsky přívětivé číslování od jedničky
     for index, ukol in enumerate(ukoly, start=1):
         print(f"{index}. {ukol['nazev']} - {ukol['popis']}")
 
 
 def odstranit_ukol() -> None:
-    """Umožní uživateli odstranit konkrétní úkol podle jeho čísla."""
+    """
+    Umožní uživateli odstranit konkrétní úkol podle jeho čísla.
+    Opakuje dotaz, dokud není zadán platný vstup.
+    """
     if not ukoly:
         print("\nNení co odstranit, seznam je prázdný.")
         return
 
-    zobrazit_ukoly()
-    
-    try:
-        index_str = input("\nZadejte číslo úkolu k odstranění: ").strip()
-        # Převod vstupu na index (Python indexuje od 0, uživatel vidí od 1)
-        index = int(index_str) - 1
+    while True:
+        zobrazit_ukoly()
+        print("(Pro zrušení a návrat do menu zadejte 'q')")
         
-        # Kontrola, zda je index v platném rozsahu existujícího seznamu
-        if 0 <= index < len(ukoly):
-            odstraneny = ukoly.pop(index)
-            print(f"Úkol '{odstraneny['nazev']}' byl odstraněn.")
-        else:
-            print("Chyba: Úkol s tímto číslem neexistuje.")
+        vstup = input("\nZadejte číslo úkolu k odstranění: ").strip().lower()
+        
+        if vstup == 'q':
+            print("Odstraňování zrušeno.")
+            break
+
+        try:
+            # Převod na index (uživatel 1 -> Python 0)
+            index = int(vstup) - 1
             
-    except ValueError:
-        print("Chyba: Zadejte prosím platné celé číslo.")
+            if 0 <= index < len(ukoly):
+                odstraneny = ukoly.pop(index)
+                print(f"Úkol '{odstraneny['nazev']}' byl úspěšně odstraněn.")
+                break
+            else:
+                print(f"Chyba: Zadejte číslo v rozmezí 1 až {len(ukoly)}.")
+                
+        except ValueError:
+            print("Chyba: Neplatný vstup. Zadejte prosím číslo úkolu nebo 'q'.")
 
 
 def spusti_program() -> None:
@@ -99,8 +107,9 @@ def spusti_program() -> None:
         elif volba == "3":
             odstranit_ukol()
         elif volba == "4":
-            print("\nUkončuji program. Na shledanou!")
-            break
+            # TC08: Specifikace očekávaného ukončení
+            print("\nUkončuji program. Žádné další výstupy nebudou generovány.")
+            sys.exit(0)  # Standardní exit kód pro úspěšné ukončení
 
 
 if __name__ == "__main__":
